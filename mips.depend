@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1555632281 source:/home/daniel/Codigos/codeblocks/mips/main.cpp
+	<iostream>
+	"io_dados.h"
+	<stdlib.h>
+	<sstream>
+	<string>
+	<bitset>
+
+1555609208 source:/home/daniel/Codigos/codeblocks/mips/src/io_dados.cpp
+	"io_dados.h"
+	<fstream>
+	<vector>
+
+1555616581 /home/daniel/Codigos/codeblocks/mips/include/io_dados.h
+
