@@ -1,0 +1,12 @@
+$t0 $s2 sldfllskd
+lw     $t0, 0($t7)
+srl    $t0, $t0, 1
+addi   $t1, $t7, 28
+sll    $t0, $t0, 2
+add    $t1, $t1, $t0
+lw     $t1, 0($t1)
+addi   $t1, $t1, 1
+lw     $t0, 0($t7)
+sll    $t0, $t0, 2 
+addi   $t2, $t7, 28
+add    $t2, $t2, $t0
