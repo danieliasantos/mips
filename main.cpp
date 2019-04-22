@@ -17,6 +17,7 @@
 #include <map>
 #include <bits/stdc++.h>
 #include <boost/algorithm/string.hpp>
+#include <functional>
 
 using namespace std;
 
@@ -88,22 +89,234 @@ using namespace std;
         return bitset<6>(valor).to_string();
     }
 
-    string instrI1(Instructions instr, vector<string> &result){
-        string instrucao;
-        std::stringstream ss;
-        ss << instr.opcode << instr.rs << result[1] << toBin16Bits(stoi(result[2]));
-
-        return (instrucao = ss.str());
+    string toBin26Bits(int valor) {
+        return bitset<26>(valor).to_string();
     }
+
     /*
         funcao de gravacao do arquivo com os binarios correspondentes das instrucoes
-
+        cria instrucoes
     */
-
-    //cria instrucoes
-    void criaInstrucoes(vector<string> &listaArquivo, vector<string> &listaInstrucoes, map<string, Instructions> &mpInstr, map<string, string> &mpRgstr){
-        //vetor que recebe as instrucoes das linhas
+    void criaInstrucoes(vector<string> &listaArquivo, vector<string> &listaInstrucoes){
+        //vector string que recebe as instrucoes das linhas
         vector<string> result;
+
+        //instrucoes do MIPS
+        Instructions LUI, BLTZ, BLEZ, BGTZ, BGEZ, BLTZAL, BGEZAL, BEQ, BNE, ADDI, ADDIU, SLTI, SLTIU, ANDI, ORI, XORI, LB, LH, LWL, LW, LBU, LHU, LWR, SB, SH, SWL, SW, SWR, J, JAL, SLLV, SRLV, SRAV, ADD, ADDU, SUB, SUBU, AND, OR, XOR, NOR, SLT, SLTU, JR, MTHI, MTLO, MULT, MULTU, DIV, DIVU, JALR, MFHI, MFLO, SLL, SRL, SRA;
+
+        //inicializando instrucoes com valores ja conhecidos
+        LUI.ini("001111", "00000", "", "", "", "");
+        BLTZ.ini("000001", "", "00000", "", "", "");
+        BLEZ.ini("000110", "", "00000", "", "", "");
+        BGTZ.ini("000111", "", "00000", "", "", "");
+        BGEZ.ini("000001", "", "00001", "", "", "");
+        BLTZAL.ini("000001", "", "10000", "", "", "");
+        BGEZAL.ini("000001", "", "10001", "", "", "");
+        BEQ.ini("000100", "", "", "", "", "");
+        BNE.ini("000101", "", "", "", "", "");
+        ADDI.ini("001000", "", "", "", "", "");
+        ADDIU.ini("001001", "", "", "", "", "");
+        SLTI.ini("001010", "", "", "", "", "");
+        SLTIU.ini("001011", "", "", "", "", "");
+        ANDI.ini("001100", "", "", "", "", "");
+        ORI.ini("001101", "", "", "", "", "");
+        XORI.ini("001110", "", "", "", "", "");
+        LB.ini("100000", "", "", "", "", "");
+        LH.ini("100001", "", "", "", "", "");
+        LWL.ini("100010", "", "", "", "", "");
+        LW.ini("100011", "", "", "", "", "");
+        LBU.ini("100100", "", "", "", "", "");
+        LHU.ini("100101", "", "", "", "", "");
+        LWR.ini("100110", "", "", "", "", "");
+        SB.ini("101000", "", "", "", "", "");
+        SH.ini("101001", "", "", "", "", "");
+        SWL.ini("101010", "", "", "", "", "");
+        SW.ini("101011", "", "", "", "", "");
+        SWR.ini("101110", "", "", "", "", "");
+        J.ini("000010", "", "", "", "", "");
+        JAL.ini("000011", "", "", "", "", "");
+        SLLV.ini("000000", "", "", "", "00000", "000100");
+        SRLV.ini("000000", "", "", "", "00000", "000110");
+        SRAV.ini("000000", "", "", "", "00000", "000111");
+        ADD.ini("000000", "", "", "", "00000", "100000");
+        ADDU.ini("000000", "", "", "", "00000", "100001");
+        SUB.ini("000000", "", "", "", "00000", "100010");
+        SUBU.ini("000000", "", "", "", "00000", "100011");
+        AND.ini("000000", "", "", "", "00000", "100100");
+        OR.ini("000000", "", "", "", "00000", "100101");
+        XOR.ini("000000", "", "", "", "00000", "100110");
+        NOR.ini("000000", "", "", "", "00000", "100111");
+        SLT.ini("000000", "", "", "", "00000", "101101");
+        SLTU.ini("000000", "", "", "", "00000", "101011");
+        JR.ini("000000", "", "00000", "00000", "00000", "001000");
+        MTHI.ini("000000", "", "00000", "00000", "00000", "010001");
+        MTLO.ini("000000", "", "00000", "00000", "00000", "010011");
+        MULT.ini("000000", "", "", "00000", "00000", "011000");
+        MULTU.ini("000000", "", "", "00000", "00000", "011001");
+        DIV.ini("000000", "", "", "00000", "00000", "011010");
+        DIVU.ini("000000", "", "", "00000", "00000", "011011");
+        JALR.ini("000000", "", "00000", "", "00000", "001001");
+        MFHI.ini("000000", "00000", "00000", "", "00000", "010000");
+        MFLO.ini("000000", "00000", "00000", "", "00000", "010010");
+        SLL.ini("000000", "00000", "", "", "", "000000");
+        SRL.ini("000000", "00000", "", "", "", "000010");
+        SRA.ini("000000", "00000", "", "", "", "000011");
+
+        //funcao lambda de montagem da instrucao LUI
+        auto instrI1 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << instr.rs << result[1] << toBin16Bits(stoi(result[2]));
+            return (ss.str());
+        };
+
+        auto instrI2 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << result[3] << instr.rs << toBin16Bits(stoi(result[2]));
+            return (ss.str());
+        };
+
+        auto instrI3 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << result[3] << result[1] << toBin16Bits(stoi(result[2]));
+            return (ss.str());
+        };
+
+        auto instrJ = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << toBin26Bits(stoi(result[1]));
+            return (ss.str());
+        };
+
+        auto instrR1 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << result[2] << result[3] << result[1] << instr.shamt << instr.functionI;
+            return (ss.str());
+        };
+
+        auto instrR2 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << result[2] << instr.rt << instr.rd << instr.shamt << instr.functionI;
+            return (ss.str());
+        };
+
+        auto instrR3 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << result[2] << result[3] << instr.rd << instr.shamt << instr.functionI;
+            return (ss.str());
+        };
+
+        auto instrR4 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << result[2] << instr.rt << result[1] << instr.shamt << instr.functionI;
+            return (ss.str());
+        };
+
+        auto instrR5 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << instr.rs << instr.rt << result[1] << instr.shamt << instr.functionI;
+            return (ss.str());
+        };
+
+        auto instrR6 = [](Instructions instr, vector<string> &result) -> string{
+            std::stringstream ss;
+            ss << instr.opcode << instr.rs << result[3] << result[1] << result[2] << instr.functionI;
+            return (ss.str());
+        };
+
+        //map que associa a string pesquisada a funcao lambda de conversao
+        map<string, function<string(Instructions, vector<string>)>> instrMIPS;
+        //instrMIPS.insert({"lui", instrI1(LUI, result)});
+        /*instrMIPS["bltz"] = BLTZ;
+        instrMIPS["blez"] = BLEZ;
+        instrMIPS["bgtz"] = BGTZ;
+        instrMIPS["bgez"] = BGEZ;
+        instrMIPS["bltzal"] = BLTZAL;
+        instrMIPS["bgezal"] = BGEZAL;
+        instrMIPS["beq"] = BEQ;
+        instrMIPS["bne"] = BNE;
+        instrMIPS["addi"] = ADDI;
+        instrMIPS["addiu"] = ADDIU;
+        instrMIPS["slti"] = SLTI;
+        instrMIPS["sltiu"] = SLTIU;
+        instrMIPS["andi"] = ANDI;
+        instrMIPS["ori"] = ORI;
+        instrMIPS["xori"] = XORI;
+        instrMIPS["lb"] = LB;
+        instrMIPS["lh"] = LH;
+        instrMIPS["lwl"] = LWL;
+        instrMIPS["lw"] = LW;
+        instrMIPS["lbu"] = LBU;
+        instrMIPS["lhu"] = LHU;
+        instrMIPS["lwr"] = LWR;
+        instrMIPS["sb"] = SB;
+        instrMIPS["sh"] = SH;
+        instrMIPS["swl"] = SWL;
+        instrMIPS["sw"] = SW;
+        instrMIPS["swr"] = SWR;
+        instrMIPS["j"] = J;
+        instrMIPS["jal"] = JAL;
+        instrMIPS["sllv"] = SLLV;
+        instrMIPS["srlv"] = SRLV;
+        instrMIPS["srav"] = SRAV;
+        instrMIPS["add"] = ADD;
+        instrMIPS["addu"] = ADDU;
+        instrMIPS["sub"] = SUB;
+        instrMIPS["subu"] = SUBU;
+        instrMIPS["and"] = AND;
+        instrMIPS["or"] = OR;
+        instrMIPS["xor"] = XOR;
+        instrMIPS["nor"] = NOR;
+        instrMIPS["slt"] = SLT;
+        instrMIPS["sltu"] = SLTU;
+        instrMIPS["jr"] = JR;
+        instrMIPS["mthi"] = MTHI;
+        instrMIPS["mtlo"] = MTLO;
+        instrMIPS["mult"] = MULT;
+        instrMIPS["multu"] = MULTU;
+        instrMIPS["div"] = DIV;
+        instrMIPS["divu"] = DIVU;
+        instrMIPS["jalr"] = JALR;
+        instrMIPS["mfhi"] = MFHI;
+        instrMIPS["mflo"] = MFLO;
+        instrMIPS["sll"] = SLL;
+        instrMIPS["srl"] = SRL;
+        instrMIPS["sra"] = SRA;*/
+
+        map<string, string>rgstrMIPS;
+        rgstrMIPS["$a0"] = "00100";
+        rgstrMIPS["$a1"] = "00101";
+        rgstrMIPS["$a2"] = "00110";
+        rgstrMIPS["$a3"] = "00111";
+        rgstrMIPS["$at"] = "00001";
+        rgstrMIPS["$fp"] = "11110";
+        rgstrMIPS["$gp"] = "11100";
+        rgstrMIPS["$k0"] = "11010";
+        rgstrMIPS["$k1"] = "11011";
+        rgstrMIPS["$ra"] = "11111";
+        rgstrMIPS["$s0"] = "10000";
+        rgstrMIPS["$s1"] = "10001";
+        rgstrMIPS["$s2"] = "10010";
+        rgstrMIPS["$s3"] = "10011";
+        rgstrMIPS["$s4"] = "10100";
+        rgstrMIPS["$s5"] = "10101";
+        rgstrMIPS["$s6"] = "10110";
+        rgstrMIPS["$s7"] = "10111";
+        rgstrMIPS["$sp"] = "11101";
+        rgstrMIPS["$t0"] = "01000";
+        rgstrMIPS["$t1"] = "01001";
+        rgstrMIPS["$t2"] = "01010";
+        rgstrMIPS["$t3"] = "01011";
+        rgstrMIPS["$t4"] = "01100";
+        rgstrMIPS["$t5"] = "01101";
+        rgstrMIPS["$t6"] = "01110";
+        rgstrMIPS["$t7"] = "01111";
+        rgstrMIPS["$t8"] = "11000";
+        rgstrMIPS["$t9"] = "11001";
+        rgstrMIPS["$v0"] = "00010";
+        rgstrMIPS["$v1"] = "00011";
+        rgstrMIPS["$zero"] = "00000";
+
+        //montagem da string de binario
         for(auto i:listaArquivo){
             //substitui virgula por espaco
             boost::replace_all(i, ",", "");
@@ -124,181 +337,34 @@ using namespace std;
     }
 
 
-    void gravarArquivo(string nome);
+    void gravarArquivo(string nome, vector<string> &listaInstrucoes){
+/*
+        ofstream arquivoSaida;
+
+        arquivoSaida.open("programa1_bin.txt"); //, ios::app); parâmetro para abrir o arquivo e posicionar o cursor no final do arquivo.
+
+        arquivoSaida << s << "\n";
+
+        arquivoSaida.close();
+*/
+    }
 
 
 int main(int argc, char *argv[]){
 
-    //instrucoes do MIPS
-    Instructions LUI, BLTZ, BLEZ, BGTZ, BGEZ, BLTZAL, BGEZAL, BEQ, BNE, ADDI, ADDIU, SLTI, SLTIU, ANDI, ORI, XORI, LB, LH, LWL, LW, LBU, LHU, LWR, SB, SH, SWL, SW, SWR, J, JAL, SLLV, SRLV, SRAV, ADD, ADDU, SUB, SUBU, AND, OR, XOR, NOR, SLT, SLTU, JR, MTHI, MTLO, MULT, MULTU, DIV, DIVU, JALR, MFHI, MFLO, SLL, SRL, SRA;
-
-    //inicializando instrucoes com valores ja conhecidos
-    LUI.ini("001111", "00000", "", "", "", "");
-//    BLTZ.ini("000001", "", "00000", "", "", "");
-
-    //Instructions LUI;
-    map<string,Instructions>instrMIPS; //map que associa a string
-    instrMIPS["lui"] = LUI;
-    /*instrMIPS["bltz"] = BLTZ;
-    instrMIPS["blez"] = BLEZ;
-    instrMIPS["bgtz"] = BGTZ;
-    instrMIPS["bgez"] = BGEZ;
-    instrMIPS["bltzal"] = BLTZAL;
-    instrMIPS["bgezal"] = BGEZAL;
-    instrMIPS["beq"] = BEQ;
-    instrMIPS["bne"] = BNE;
-    instrMIPS["addi"] = ADDI;
-    instrMIPS["addiu"] = ADDIU;
-    instrMIPS["slti"] = SLTI;
-    instrMIPS["sltiu"] = SLTIU;
-    instrMIPS["andi"] = ANDI;
-    instrMIPS["ori"] = ORI;
-    instrMIPS["xori"] = XORI;
-    instrMIPS["lb"] = LB;
-    instrMIPS["lh"] = LH;
-    instrMIPS["lwl"] = LWL;
-    instrMIPS["lw"] = LW;
-    instrMIPS["lbu"] = LBU;
-    instrMIPS["lhu"] = LHU;
-    instrMIPS["lwr"] = LWR;
-    instrMIPS["sb"] = SB;
-    instrMIPS["sh"] = SH;
-    instrMIPS["swl"] = SWL;
-    instrMIPS["sw"] = SW;
-    instrMIPS["swr"] = SWR;
-    instrMIPS["j"] = J;
-    instrMIPS["jal"] = JAL;
-    instrMIPS["sllv"] = SLLV;
-    instrMIPS["srlv"] = SRLV;
-    instrMIPS["srav"] = SRAV;
-    instrMIPS["add"] = ADD;
-    instrMIPS["addu"] = ADDU;
-    instrMIPS["sub"] = SUB;
-    instrMIPS["subu"] = SUBU;
-    instrMIPS["and"] = AND;
-    instrMIPS["or"] = OR;
-    instrMIPS["xor"] = XOR;
-    instrMIPS["nor"] = NOR;
-    instrMIPS["slt"] = SLT;
-    instrMIPS["sltu"] = SLTU;
-    instrMIPS["jr"] = JR;
-    instrMIPS["mthi"] = MTHI;
-    instrMIPS["mtlo"] = MTLO;
-    instrMIPS["mult"] = MULT;
-    instrMIPS["multu"] = MULTU;
-    instrMIPS["div"] = DIV;
-    instrMIPS["divu"] = DIVU;
-    instrMIPS["jalr"] = JALR;
-    instrMIPS["mfhi"] = MFHI;
-    instrMIPS["mflo"] = MFLO;
-    instrMIPS["sll"] = SLL;
-    instrMIPS["srl"] = SRL;
-    instrMIPS["sra"] = SRA;*/
-
-    map<string, string>rgstrMIPS;
-    rgstrMIPS["$a0"] = "00100";
-    rgstrMIPS["$a1"] = "00101";
-    rgstrMIPS["$a2"] = "00110";
-    rgstrMIPS["$a3"] = "00111";
-    rgstrMIPS["$at"] = "00001";
-    rgstrMIPS["$fp"] = "11110";
-    rgstrMIPS["$gp"] = "11100";
-    rgstrMIPS["$k0"] = "11010";
-    rgstrMIPS["$k1"] = "11011";
-    rgstrMIPS["$ra"] = "11111";
-    rgstrMIPS["$s0"] = "10000";
-    rgstrMIPS["$s1"] = "10001";
-    rgstrMIPS["$s2"] = "10010";
-    rgstrMIPS["$s3"] = "10011";
-    rgstrMIPS["$s4"] = "10100";
-    rgstrMIPS["$s5"] = "10101";
-    rgstrMIPS["$s6"] = "10110";
-    rgstrMIPS["$s7"] = "10111";
-    rgstrMIPS["$sp"] = "11101";
-    rgstrMIPS["$t0"] = "01000";
-    rgstrMIPS["$t1"] = "01001";
-    rgstrMIPS["$t2"] = "01010";
-    rgstrMIPS["$t3"] = "01011";
-    rgstrMIPS["$t4"] = "01100";
-    rgstrMIPS["$t5"] = "01101";
-    rgstrMIPS["$t6"] = "01110";
-    rgstrMIPS["$t7"] = "01111";
-    rgstrMIPS["$t8"] = "11000";
-    rgstrMIPS["$t9"] = "11001";
-    rgstrMIPS["$v0"] = "00010";
-    rgstrMIPS["$v1"] = "00011";
-    rgstrMIPS["$zero"] = "00000";
-
     //vector com linhas do arquivo
     vector<string> listaArquivo;
 
-    lerArquivo("teste.txt", linhasArquivo);
+    lerArquivo("teste.txt", listaArquivo);
 
     vector<string> listaInstrucoes;
 
-    criaInstrucoes(listaArquivo, listaInstrucoes, instrMIPS, rgstrMIPS);
+    criaInstrucoes(listaArquivo, listaInstrucoes);
+
+    gravarArquivo("", listaInstrucoes);
+    //limpa memoria
+    listaArquivo.clear();
+    listaInstrucoes.clear();
 
     return 0;
 }
-/*    //
-    string instrStringToBin(vector<string> &result){
-    }
-
-
-
-/*    enum registradores{
-        $zero,
-        $at,
-        $v0,
-        $v1,
-        $a0,
-        $a1,
-        $a2,
-        $a3,
-        $t0,
-        $t1,
-        $t2,
-        $t3,
-        $t4,
-        $t5,
-        $t6,
-        $t7,
-        $s0,
-        $s1,
-        $s2,
-        $s3,
-        $s4,
-        $s5,
-        $s6,
-        $s7,
-        $t8,
-        $t9,
-        $k0,
-        $k1,
-        $gp,
-        $sp,
-        $fp,
-        $ra,
-    };
-
-    map<string, Instructions>instrucoes{
-        {'', },
-        {
-
-        }
-    };
-
-
-
-
-    //vector<string>listaInstrucoes;
-
-
-    ofstream arquivoSaida;
-
-    arquivoSaida.open("programa1_bin.txt"); //, ios::app); parâmetro para abrir o arquivo e posicionar o cursor no final do arquivo.
-
-    arquivoSaida << s << "\n";
-
-    arquivoSaida.close();
-*/
