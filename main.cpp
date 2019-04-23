@@ -18,8 +18,20 @@
 #include <bits/stdc++.h>
 #include <boost/algorithm/string.hpp>
 #include <functional>
+#include <utility>
 
 using namespace std;
+
+class T {
+private:
+    string (*expression)();
+public:
+    T(string (*exp)()) : expression(exp) {}
+    string execute() {
+        return this->expression();
+    }
+};
+
 
     //verifica se existem espacos duplicados. retorna true se existir
     bool BothAreSpaces(char lhs, char rhs) {
@@ -28,6 +40,7 @@ using namespace std;
 
     //verifica a regencia da instrucao. retorna true se encontrar ocorrencia da regencia na instrucao
     bool regexOk(string &str){
+        // regex original {"[a-z]{2,4}[\s](([\$][a|f|g|k|r|v|s|t][a|t|p|\d]\,\s[\d]*\([\$][(a|f|g|k|r|v|s|t)][a|t|p|[\d]\)|(\$szero\,\s[\d]*\([\$][(a|f|g|k|r|v|s|t)][a|t|p|[\d]\)|(-?[\d]*\,\s[\d]*\([\$][(a|f|g|k|r|v|s|t)][a|t|p|[\d]\))))|([\$][a|f|g|k|r|v|s|t][a|t|p|\d]\,\s|(\$szero\,\s|(-?[\d]*\,\s)))([\$][a|f|g|k|r|v|s|t][a|t|p|\d]\,\s|(\$szero\,\s|(-?[\d]*\,\s)))([\$][a|f|g|k|r|v|s|t][a|t|p|\d]|(\$szero|(-?[\d]*))))"}
         regex express("[a-z]{2,4}[\\s](([\\$][a|f|g|k|r|v|s|t][a|t|p|\\d]\\,\\s[\\d]*\\([\\$][(a|f|g|k|r|v|s|t)][a|t|p|[\\d]\\)|(\\$szero\\,\\s[\\d]*\\([\\$][(a|f|g|k|r|v|s|t)][a|t|p|[\\d]\\)|(-?[\\d]*\\,\\s[\\d]*\\([\\$][(a|f|g|k|r|v|s|t)][a|t|p|[\\d]\\))))|([\\$][a|f|g|k|r|v|s|t][a|t|p|\\d]\\,\\s|(\\$szero\\,\\s|(-?[\\d]*\\,\\s)))([\\$][a|f|g|k|r|v|s|t][a|t|p|\\d]\\,\\s|(\\$szero\\,\\s|(-?[\\d]*\\,\\s)))([\\$][a|f|g|k|r|v|s|t][a|t|p|\\d]|(\\$szero|(-?[\\d]*))))");
         return regex_search(str, express);
     }
@@ -163,124 +176,124 @@ using namespace std;
         SRA.ini("000000", "00000", "", "", "", "000011");
 
         //funcao lambda de montagem da instrucao LUI
-        auto instrI1 = [](Instructions instr, vector<string> &result) -> string{
+        T instrI1([](Instructions instr, vector<string> &result){
             std::stringstream ss;
             ss << instr.opcode << instr.rs << result[1] << toBin16Bits(stoi(result[2]));
             return (ss.str());
-        };
+        });
 
-        auto instrI2 = [](Instructions instr, vector<string> &result) -> string{
+        T instrI2([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << result[3] << instr.rs << toBin16Bits(stoi(result[2]));
             return (ss.str());
-        };
+        });
 
-        auto instrI3 = [](Instructions instr, vector<string> &result) -> string{
+        T instrI3([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << result[3] << result[1] << toBin16Bits(stoi(result[2]));
             return (ss.str());
-        };
+        });
 
-        auto instrJ = [](Instructions instr, vector<string> &result) -> string{
+        T instrJ([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << toBin26Bits(stoi(result[1]));
             return (ss.str());
-        };
+        });
 
-        auto instrR1 = [](Instructions instr, vector<string> &result) -> string{
+        T instrR1([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << result[2] << result[3] << result[1] << instr.shamt << instr.functionI;
             return (ss.str());
-        };
+        });
 
-        auto instrR2 = [](Instructions instr, vector<string> &result) -> string{
+        T instrR2([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << result[2] << instr.rt << instr.rd << instr.shamt << instr.functionI;
             return (ss.str());
-        };
+        });
 
-        auto instrR3 = [](Instructions instr, vector<string> &result) -> string{
+        T instrR3([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << result[2] << result[3] << instr.rd << instr.shamt << instr.functionI;
             return (ss.str());
-        };
+        });
 
-        auto instrR4 = [](Instructions instr, vector<string> &result) -> string{
+        T instrR4([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << result[2] << instr.rt << result[1] << instr.shamt << instr.functionI;
             return (ss.str());
-        };
+        });
 
-        auto instrR5 = [](Instructions instr, vector<string> &result) -> string{
+        T instrR5([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << instr.rs << instr.rt << result[1] << instr.shamt << instr.functionI;
             return (ss.str());
-        };
+        });
 
-        auto instrR6 = [](Instructions instr, vector<string> &result) -> string{
+        T instrR6([](Instructions instr, vector<string> &result) -> string{
             std::stringstream ss;
             ss << instr.opcode << instr.rs << result[3] << result[1] << result[2] << instr.functionI;
             return (ss.str());
-        };
+        });
 
         //map que associa a string pesquisada a funcao lambda de conversao
-        map<string, function<string(Instructions, vector<string>)>> instrMIPS;
-        //instrMIPS.insert({"lui", instrI1(LUI, result)});
-        /*instrMIPS["bltz"] = BLTZ;
-        instrMIPS["blez"] = BLEZ;
-        instrMIPS["bgtz"] = BGTZ;
-        instrMIPS["bgez"] = BGEZ;
-        instrMIPS["bltzal"] = BLTZAL;
-        instrMIPS["bgezal"] = BGEZAL;
-        instrMIPS["beq"] = BEQ;
-        instrMIPS["bne"] = BNE;
-        instrMIPS["addi"] = ADDI;
-        instrMIPS["addiu"] = ADDIU;
-        instrMIPS["slti"] = SLTI;
-        instrMIPS["sltiu"] = SLTIU;
-        instrMIPS["andi"] = ANDI;
-        instrMIPS["ori"] = ORI;
-        instrMIPS["xori"] = XORI;
-        instrMIPS["lb"] = LB;
-        instrMIPS["lh"] = LH;
-        instrMIPS["lwl"] = LWL;
-        instrMIPS["lw"] = LW;
-        instrMIPS["lbu"] = LBU;
-        instrMIPS["lhu"] = LHU;
-        instrMIPS["lwr"] = LWR;
-        instrMIPS["sb"] = SB;
-        instrMIPS["sh"] = SH;
-        instrMIPS["swl"] = SWL;
-        instrMIPS["sw"] = SW;
-        instrMIPS["swr"] = SWR;
-        instrMIPS["j"] = J;
-        instrMIPS["jal"] = JAL;
-        instrMIPS["sllv"] = SLLV;
-        instrMIPS["srlv"] = SRLV;
-        instrMIPS["srav"] = SRAV;
-        instrMIPS["add"] = ADD;
-        instrMIPS["addu"] = ADDU;
-        instrMIPS["sub"] = SUB;
-        instrMIPS["subu"] = SUBU;
-        instrMIPS["and"] = AND;
-        instrMIPS["or"] = OR;
-        instrMIPS["xor"] = XOR;
-        instrMIPS["nor"] = NOR;
-        instrMIPS["slt"] = SLT;
-        instrMIPS["sltu"] = SLTU;
-        instrMIPS["jr"] = JR;
-        instrMIPS["mthi"] = MTHI;
-        instrMIPS["mtlo"] = MTLO;
-        instrMIPS["mult"] = MULT;
-        instrMIPS["multu"] = MULTU;
-        instrMIPS["div"] = DIV;
-        instrMIPS["divu"] = DIVU;
-        instrMIPS["jalr"] = JALR;
-        instrMIPS["mfhi"] = MFHI;
-        instrMIPS["mflo"] = MFLO;
-        instrMIPS["sll"] = SLL;
-        instrMIPS["srl"] = SRL;
-        instrMIPS["sra"] = SRA;*/
+        map<string, pair<Instructions, T>> mapMIPS;
+        mapMIPS["lui"] = make_pair(LUI, instrI1);
+        mapMIPS["bltz"] = make_pair(BLTZ, instrI2);
+        mapMIPS["blez"] = make_pair(BLEZ, instrI2);
+        mapMIPS["bgtz"] = make_pair(BGTZ, instrI2);
+        mapMIPS["bgez"] = make_pair(BGEZ, instrI2);
+        mapMIPS["bltzal"] = make_pair(BLTZAL, instrI2);
+        mapMIPS["bgezal"] = make_pair(BGEZAL, instrI2);
+        mapMIPS["beq"] = make_pair(BEQ, instrI3);
+        mapMIPS["bne"] = make_pair(BNE, instrI3);
+        mapMIPS["addi"] = make_pair(ADDI, instrI3);
+        mapMIPS["addiu"] = make_pair(ADDIU, instrI3);
+        mapMIPS["slti"] = make_pair(SLTI, instrI3);
+        mapMIPS["sltiu"] = make_pair(SLTIU, instrI3);
+        mapMIPS["andi"] = make_pair(ANDI, instrI3);
+        mapMIPS["ori"] = make_pair(ORI, instrI3);
+        mapMIPS["xori"] = make_pair(XORI, instrI3);
+        mapMIPS["lb"] = make_pair(LB, instrI3);
+        mapMIPS["lh"] = make_pair(LH, instrI3);
+        mapMIPS["lwl"] = make_pair(LWL, instrI3);
+        mapMIPS["lw"] = make_pair(LW, instrI3);
+        mapMIPS["lbu"] = make_pair(LBU, instrI3);
+        mapMIPS["lhu"] = make_pair(LHU, instrI3);
+        mapMIPS["lwr"] = make_pair(LWR, instrI3);
+        mapMIPS["sb"] = make_pair(SB, instrI3);
+        mapMIPS["sh"] = make_pair(SH, instrI3);
+        mapMIPS["swl"] = make_pair(SWL, instrI3);
+        mapMIPS["sw"] = make_pair(SW, instrI3);
+        mapMIPS["swr"] = make_pair(SWR, instrI3);
+        mapMIPS["j"] = make_pair(J, instrJ);
+        mapMIPS["jal"] = make_pair(JAL, instrJ);
+        mapMIPS["sllv"] = make_pair(SLLV, instrR1);
+        mapMIPS["srlv"] = make_pair(SRLV, instrR1);
+        mapMIPS["srav"] = make_pair(SRAV, instrR1);
+        mapMIPS["add"] = make_pair(ADD, instrR1);
+        mapMIPS["addu"] = make_pair(ADDU, instrR1);
+        mapMIPS["sub"] = make_pair(SUB, instrR1);
+        mapMIPS["subu"] = make_pair(SUBU, instrR1);
+        mapMIPS["and"] = make_pair(AND, instrR1);
+        mapMIPS["or"] = make_pair(OR, instrR1);
+        mapMIPS["xor"] = make_pair(XOR, instrR1);
+        mapMIPS["nor"] = make_pair(NOR, instrR1);
+        mapMIPS["slt"] = make_pair(SLT, instrR1);
+        mapMIPS["sltu"] = make_pair(SLTU, instrR1);
+        mapMIPS["jr"] = make_pair(JR, instrR2);
+        mapMIPS["mthi"] = make_pair(MTHI, instrR2);
+        mapMIPS["mtlo"] = make_pair(MTLO, instrR2);
+        mapMIPS["mult"] = make_pair(MULT, instrR3);
+        mapMIPS["multu"] = make_pair(MULTU, instrR3);
+        mapMIPS["div"] = make_pair(DIV, instrR3);
+        mapMIPS["divu"] = make_pair(DIVU, instrR3);
+        mapMIPS["jalr"] = make_pair(JALR, instrR4);
+        mapMIPS["mfhi"] = make_pair(MFHI, instrR5);
+        mapMIPS["mflo"] = make_pair(MFLO, instrR5);
+        mapMIPS["sll"] = make_pair(SLL, instrR6);
+        mapMIPS["srl"] = make_pair(SRL, instrR6);
+        mapMIPS["sra"] = make_pair(SRA, instrR6);
 
         map<string, string>rgstrMIPS;
         rgstrMIPS["$a0"] = "00100";
@@ -328,27 +341,28 @@ using namespace std;
             boost::split(result, i, boost::is_any_of(" "));
             //teste se o split foi correto
             if(result[0].compare("Erro.") != 0){ //0: instrucao incorreta. !=0 insstrucao correta
-
-            } else{
-
+                Instructions itr = mapMIPS.find(result[0]);
+                string txt = mapMIPS.find(result[0]).second.execute(itr, result);
+                listaInstrucoes.push_back(string);
+            } else {
+                listaInstrucoes.push_back("Erro. Instrucao nao reconhecida.");
             }
-            result.clear();
         }
+        result.clear();
+        rgstrMIPS.clear();
+        mapMIPS.clear();
     }
 
 
     void gravarArquivo(string nome, vector<string> &listaInstrucoes){
-/*
         ofstream arquivoSaida;
-
-        arquivoSaida.open("programa1_bin.txt"); //, ios::app); parâmetro para abrir o arquivo e posicionar o cursor no final do arquivo.
-
-        arquivoSaida << s << "\n";
-
+        nome = nome + "_bin.txt";
+        arquivoSaida.open(nome); //, ios::app); parâmetro para abrir o arquivo e posicionar o cursor no final do arquivo.
+        for (auto i : listaInstrucoes){
+            arquivoSaida << i << "\n";
+        }
         arquivoSaida.close();
-*/
     }
-
 
 int main(int argc, char *argv[]){
 
@@ -362,6 +376,7 @@ int main(int argc, char *argv[]){
     criaInstrucoes(listaArquivo, listaInstrucoes);
 
     gravarArquivo("", listaInstrucoes);
+
     //limpa memoria
     listaArquivo.clear();
     listaInstrucoes.clear();
