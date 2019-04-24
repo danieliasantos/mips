@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1555899791 source:/home/daniel/Codigos/codeblocks/mips/main.cpp
+1556100680 source:/home/daniel/Codigos/codeblocks/mips/main.cpp
 	<iostream>
 	<stdlib.h>
 	<sstream>
@@ -11,6 +11,8 @@
 	<map>
 	<bits/stdc++.h>
 	<boost/algorithm/string.hpp>
+	<functional>
+	<utility>
 
 1555609208 source:/home/daniel/Codigos/codeblocks/mips/src/io_dados.cpp
 	"io_dados.h"
